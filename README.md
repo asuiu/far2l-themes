@@ -41,7 +41,30 @@ far2l-theme
 ```
 Select a theme from the menu. Restart `far2l` to see the changes.
 
-## How it Works
+## Development Tools
+
+This repository includes Python scripts in the `tools/` directory to help convert legacy themes to TrueColor (RGB) format.
+
+### 1. `fix_theme_rgb.py`
+**Purpose:** Updates `farcolors.ini` (Interface Colors) to use explicit RGB values.
+**Usage:**
+```bash
+python3 tools/fix_theme_rgb.py path/to/your/theme/folder
+```
+*   Reads `palette.ini` to find the RGB values for standard indices (0-15).
+*   Updates `farcolors.ini` by prepending `background:#RRGGBB` to entries, forcing `far2l` to enable RGB mode for dialogs, menus, and panels.
+
+### 2. `upgrade_colors_ini.py`
+**Purpose:** Updates `colors.ini` (File Highlighting) to use 64-bit TrueColor attributes.
+**Usage:**
+```bash
+python3 tools/upgrade_colors_ini.py path/to/your/theme/folder
+```
+*   Reads `palette.ini`.
+*   Converts legacy bitmasks (e.g., `0x82`) into 64-bit TrueColor integers (e.g., `0x602010...`).
+*   **Special Feature:** Automatically detects `SelectedColor` and forces the background to match the main panel background (typically Index 8 or 0) while keeping the foreground text color. This fixes the "Red Stripe" issue common in legacy themes when used with custom palettes.
+
+## How the Switcher Works
 
 The switcher handles the critical `TTYPaletteOverride` setting in `~/.config/far2l/settings/config.ini`:
 *   **Default:** Sets `TTYPaletteOverride=1`.
