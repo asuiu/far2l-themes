@@ -14,8 +14,8 @@ if [ ! -d "$INSTALL_DIR" ]; then
 fi
 
 # Create Symlink
-ln -sf "$PROJECT_DIR/switcher.sh" "$TARGET"
-chmod +x "$PROJECT_DIR/switcher.sh"
+ln -sf "$PROJECT_DIR/far2l-theme.sh" "$TARGET"
+chmod +x "$PROJECT_DIR/far2l-theme.sh"
 
 echo "Done! You can now run 'far2l-theme' from anywhere."
 echo "Themes are located in: $PROJECT_DIR/themes"

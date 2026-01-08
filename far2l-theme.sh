@@ -22,12 +22,16 @@ select theme in "${options[@]}"; do
     if [ -n "$theme" ]; then
         echo "Switching to theme: $theme"
         
+        # Always remove existing color/group files before applying any changes
+        echo "Clearing existing color and mask group settings..."
+        rm -f "$CONFIG_DIR/palette.ini"
+        rm -f "$CONFIG_DIR/settings/colors.ini"
+        rm -f "$CONFIG_DIR/settings/farcolors.ini"
+        rm -f "$CONFIG_DIR/settings/maskgroups.ini"
+        
         if [ "$theme" == "Default" ]; then
             # Restore Defaults (Remove overrides)
-            echo "Removing custom color overrides (Restoring Built-in Default)..."
-            rm -f "$CONFIG_DIR/palette.ini"
-            rm -f "$CONFIG_DIR/settings/colors.ini"
-            rm -f "$CONFIG_DIR/settings/farcolors.ini"
+            echo "Restoring Built-in Defaults..."
             
             # Restore Palette Override (Default behavior for terminal palette mapping)
             if [ -f "$CONFIG_DIR/settings/config.ini" ]; then
@@ -66,15 +70,19 @@ select theme in "${options[@]}"; do
             elif [ -f "$THEME_PATH/settings/farcolors.ini" ]; then
                 cp "$THEME_PATH/settings/farcolors.ini" "$CONFIG_DIR/settings/"
             fi
+
+            # Handle maskgroups.ini location
+            if [ -f "$THEME_PATH/maskgroups.ini" ]; then
+                cp "$THEME_PATH/maskgroups.ini" "$CONFIG_DIR/settings/"
+            elif [ -f "$THEME_PATH/settings/maskgroups.ini" ]; then
+                cp "$THEME_PATH/settings/maskgroups.ini" "$CONFIG_DIR/settings/"
+            fi
             
             # Enable RGB mode (Disable Palette Override) for custom themes
-            # This ensures TrueColor sequences (background:#...) are sent directly.
             if [ -f "$CONFIG_DIR/settings/config.ini" ]; then
-                 # Ensure setting exists or replace it
                  if grep -q "TTYPaletteOverride=" "$CONFIG_DIR/settings/config.ini"; then
                      sed -i 's/TTYPaletteOverride=./TTYPaletteOverride=0/g' "$CONFIG_DIR/settings/config.ini"
                  else
-                     # If missing, add it to [Interface] section
                      sed -i '/\[Interface\]/a TTYPaletteOverride=0' "$CONFIG_DIR/settings/config.ini"
                  fi
             fi
@@ -82,7 +90,6 @@ select theme in "${options[@]}"; do
             # Special handling for StarryDark (or similar dark themes requiring editor bg change)
             if [[ "$theme" == *"StarryDark"* ]] && [ -f "$COLORER_CONFIG" ]; then
                 sed -i 's/ChangeBgEditor\=0/ChangeBgEditor\=1/g' "$COLORER_CONFIG"
-                 # Use local catalog if it exists in the theme (optional, kept from original logic)
                  if [ -f "$CONFIG_DIR/plugins/colorer/base/catalog.xml" ]; then
                      sed -i "s|Catalog=.*|Catalog=$CONFIG_DIR/plugins/colorer/base/catalog.xml|g" "$COLORER_CONFIG"
                  fi
